@@ -1,37 +1,36 @@
 p53_Rescue_Mutants
 ==============================
 
-# Introduction
 
-# Purpose
+## Purpose
 this project aims to identify mutants that could lead to functional rescue and regions of the p53 core domain that could be altered to rescue function by modeling mutant p53 transcriptional activity
 
-# Data
+## Data
 The raw datasets for this project are from the . . . Group and are hosted online at the UC Irvine Machine Learning Repository.
 
-# Methods
-## Data Cleaning
+## Methods
+### Data Cleaning
 
 
-## Exploratory Data Analysis
+### Exploratory Data Analysis
 
 
-## Preprocessing Steps
+### Preprocessing Steps
     + Feature Selection
     + Scaling the Data
     + Resampling with SMOTE-Tomek
 
-## Modeling 
+### Modeling 
     + Random Forest
     + Logistic Regression
     + Hyperparameter Optimization
     + XGBoost(?)
 
-# Conclusions
+## Conclusions
 
-# Future Improvements
+## Future Improvements
 
-# Acknowledgments
+## Acknowledgments
 
 
 ==============================
