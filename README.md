@@ -22,17 +22,37 @@ The raw datasets for this project are from the . . . Group and are hosted online
     + Resampling with SMOTE-Tomek
 
 ### Modeling 
-    + Random Forest
-    + Logistic Regression
-    + Hyperparameter Optimization
-    + XGBoost(?)
+#### Random Forest
+
+#### Logistic Regression
+
+#### Gaussian Naive Bayes
+
+#### Nearest Centroid
 
 ## Conclusions
+### Metrics for Success
+
 
 ## Future Improvements
++ Filtering Features Using Pairwise Mutual Information
++ Play with the number of features/attributes used to train the models to find optimum number of features
++ Instead of just a train-test-split, make a train-test-validation split of the data
++ Visualize the data with UMAP and Compare UMAP with t-SNE
++ Hyperparameter Tuning with Bayesian Optimization
++ Resampling Data with SMOTE-ENN and comparing noise with SMOTE-Tomek
++ Calibrating the Classifier Models
++ Neural Networks
++ Calculate the MCC scores
++ This was built using the 2010 dataset, but can combine with 2012 dataset
++ Investigate specific clusters of “active” p53 proteins, such as those seen in the t-SNE plots, more closely
++ Combine with protein visualization software for easier interpretation of the results
++ Maybe cross-check/sanity-check with information of which domains of p53 are the most important to preserving wild-type function
++ Use Cloud Computing services, containerize and deploy model
+
 
 ## Acknowledgments
-
+Huge thank you to my mentor, Ricardo, for all of his encouragement and guidance throughout this capstone project! 
 
 ==============================
 Project Organization
