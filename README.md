@@ -96,19 +96,40 @@ Since I am not sure yet whether the features have linear or nonlinear (geometric
 
 ![after_drop](img/after_drop.png)
 
+By using MaxAbsScaler before looking at the feature variances, I was able to reduce the dimensionality of my data from 5408 features to 555 features. Additionally, this new dataset preserves some of both the 2D and 3D features, whereas the previous method (without scaling data) got rid of all of the 3D features. This tells me that the 2D features and 3D features are scaled different from each other, so using MaxAbsScaler beforehand was a good choice here.
+
+I made all the elements in the correlation matrix positive, because I only want to see if features are highly correlated at this point, not whether the features are positively correlated or negatively correlated.
+
 ![upper 2d](img/upper_2d.png)
 
+This method returns 200 of the 2D features that are highly correlated.
+
 ![final](img/final.png)
+Out of the 3D features, 13 of these had high linear correlations (above 0.90) and will be dropped. In total, I had 343 remaining features. 
 
 ![resampling](img/resampling.png)
 
 ### Modeling 
 
+Now comes the big decision - which classifier model to use? To help me decide, I quickly ran baseline models for all of the available supervised learning algorithms in Scikit-Learn. 
+
 ![baseline](img/baseline%20models.png)
+
+Of the four different performance metrics presented in this report, I will be focusing on the "Balanced Accuracy", a particularly useful metric for evaluating imbalanced classifiers. Balanced accuracy is the arithmetic mean of the sensitivity and specificity.
 
 ![balanced accuracy](img/balanced_accuracy.png)
 
+A naive classifier, one that always predicts the majority (negative) class, would have a balanced accuracy of 0.50, or 50%. We can tell how much better any of the classification algorithms above are performing compared to a naive classifier by how much greater their balanced accuracy is than 50%.
+
+The models with the highest balanced accuracy are:
+1) Nearest Centroid
+2) Gaussian Naive Bayes
+
+In addition to these models, I will be training a Random Forest model and Logistic Regression model.
+
 #### Random Forest
+
+I chose Random Forest because it is highly optimizable and interpretable. However the report shows RandomForestClassifier has a balanced accuracy of only 52%, so it is barely doing better than a naive classifier that always predicts negative. Hyperparameter tuning can have a huge effect on model performance, though, so I will still give this one a chance.
 
 ![rf2](img/rf2.png)
 ![rf2_desc](img/rf2_desc.png)
@@ -116,6 +137,8 @@ Since I am not sure yet whether the features have linear or nonlinear (geometric
 ![rf3 randomized search](img/rf3_random_search.png)
 
 #### Logistic Regression
+
+I chose Logistic Regression Classifier because it is also very efficient to train, interpretable, and easy to implement. I expect this algorithm to perform better than the Random Forest, since the LogisticRegressionClassifier has a 61% balanced accuracy compared to the RandomForestClassifier's 52% balanced accuracy.
 
 ![logreg](img/logreg.png)
 
