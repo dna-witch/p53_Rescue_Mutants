@@ -107,7 +107,15 @@ This method returns 200 of the 2D features that are highly correlated.
 ![final](img/final.png)
 Out of the 3D features, 13 of these had high linear correlations (above 0.90) and will be dropped. In total, I had 343 remaining features. 
 
+#### Dealing with Class Imbalance
+
+SMOTE is an oversampling method that interpolates synthetic observations between the existing ones in the dataset. Tomek Links are pairs of nearest neighbors that have different classes, which in this case, are instances of the majority and minority class that are next to each other. Tomek Links are used for undersampling the majority class by getting rid of those observations which are next to the minority class examples, thus creating a more distinct decision boundary for the classifier.
+
+SMOTE-Tomek is a combined method that oversamples the minority class and undersamples the majority class. This method is preferable to using SMOTE by itself since it cleans up the noise that SMOTE tends to create in the sample space.
+
 ![resampling](img/resampling.png)
+
+The resulting data will be much easier to train a classifier on. One important note is that only the training data was resampled using SMOTE-Tomek, not the test data.
 
 ### Modeling 
 
@@ -133,27 +141,55 @@ I chose Random Forest because it is highly optimizable and interpretable. Howeve
 
 ![rf2](img/rf2.png)
 ![rf2_desc](img/rf2_desc.png)
+
+Resampling the training data with SMOTETomek helped increase the recall for the positive class from 0.05 to 0.27 and the f1-score from 0.09 to 0.35! That's a significant improvement, and a great starting point. I want to continue to maximize the f1-score, which effectively balances the precision and recall, in further models.
+
 ![rf3](img/rf3.png)
+
+By increasing the class weight on the positive class, the random forest algorithm now penalizes incorrect classifications of the positive class ten times more than incorrect classifications of the negative class. 
+
+This change decreased the f1-score to 0.27, but it did even out the precision and recall for the positive class. 
+
+This tells me that changing the class weights in this way makes the model "pickier" - it does not classify very many of the observations as "active", but out of the ones it *does* classify as "active", it is usually correct. 
+
 ![rf3 randomized search](img/rf3_random_search.png)
 
 #### Logistic Regression
 
 I chose Logistic Regression Classifier because it is also very efficient to train, interpretable, and easy to implement. I expect this algorithm to perform better than the Random Forest, since the LogisticRegressionClassifier has a 61% balanced accuracy compared to the RandomForestClassifier's 52% balanced accuracy.
 
+Logistic Regression is a suitable algorithm choice for modeling this data for a few reasons:
++ The dependent (target) variable is binary
++ The features have already been filtered using linear correlation, so there should be little collinearity between variables
++ My sample sizes are large
+
 ![logreg](img/logreg.png)
+
+The Logistic Regression model shows a high recall for both classes, with the recall for the positive class being 73%! A high recall indicates a low false negative rate, which is exactly what I want. Since the positive class, which are transcriptionally active p53 mutants, are so rare, I want to make sure that as many of them as possible are correctly classified as being "active". On the other hand, this model has very low precision for the positive class, and I can see from the confusion matrix that some of the "active" p53 mutants were incorrectly classified as being "inactive". This is okay, since minimizing the false negatives is more important for my classification problem.
+
+The Logistic Regression classifier performed better than any of the Random Forest Classifiers, which agrees with my initial hypothesis.
 
 #### Gaussian Naive Bayes
 
+This classifier assumes the likelihood of the features is Gaussian.
+
 ![gnb](img/gnb.png)
+
+The result was 82% Recall for the positive class, which is much better than the Logistic Regression model! This also agrees with my initial evaluation.
 
 #### Nearest Centroid
 
 ![nearest centroid](img/nearest_centroid.png)
 ![nc table](img/nearest_centroid_table.png)
 
+The Nearest Centroid model has high recall but low precision, which means that it casts a wide net - a third of the "inactive" proteins were classified as "active". However, this model does correctly classify 86% of the "active" proteins, which is better than the other models perform.
+
 ## Conclusions
 
+The Nearest Centroid classifier had the best recall for the minority class: 86%. The trade-off for this high recall was low precision, but that is okay since I wanted to prioritize maximizing the recall for this project. 
 
+Some questions to think about are: 
++ Out of the mutants predicted to be non-cancerous, how many have a mutation in the core domain? Are there other comorbid mutations in other domains (DBD, NLS, etc.)? 
 
 ## Future Improvements
 + Filtering Features Using Pairwise Mutual Information
