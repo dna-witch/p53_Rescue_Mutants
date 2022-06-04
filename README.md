@@ -3,15 +3,16 @@ Predicting Cancerous p53 Mutants
 
 
 ## Purpose
-
-This project aims to identify mutants that could lead to functional rescue and regions of the p53 core domain that could be altered to rescue function by modeling mutant p53 transcriptional activity.
-
-![p53_structure](img/p53_structure.png)
+The p53 protein is known as "the guardian of the cell". Normally, it regulates cell growth, among many other important functions, but mutations in p53 may lead to a dysfunctional protein that allows for the uncontrolled growth which is characteristic of many cancers. **In fact, mutated p53 proteins are found in more than 50% of all human cancers!**  The disastrous results of mutations in p53 make it a well-known oncogene implicated in many cancers. Being able to restore transcriptional activity in cancerous p53 would be very useful in the treatment of these cancers. Cancer scientists and pharmaceutical companies developing gene therapies for the treatment of cancer could make good use of this model.
 
 ![hallmarks of cancer hanahan 2011](img/cancer_hallmarks.png)
 
+![p53_structure](img/p53_structure.png)
+
+Scientists are very interested in identifying if it is possible to restore the normal function of p53 and thus curb the growth of cancer. This project aims to identify mutants that could lead to functional rescue of p53 and regions of the p53 core domain that could be altered to "rescue" function by modeling mutant p53 transcriptional activity.
+
 ## Data
-The data represents the biophysical attributes of mutant p53 proteins which are going to be used to predict the transcriptional activity of the mutant p53 proteins. The mutant proteins are all labeled “active” or “inactive”. Proteins labeled “inactive” are cancerous, while proteins labeled “active” have successfully had their normal transcriptional function “rescued”. There are 16772 instances, and each instance has 5409 attributes. Potential challenges for this dataset include known missing values, as well as the large number of attributes per instance.
+The data represents the biophysical attributes of mutant p53 proteins which are going to be used to predict the transcriptional activity of the mutant p53 proteins. The mutant proteins are all labeled “active” or “inactive”. Proteins labeled “inactive” are cancerous, while proteins labeled “active” have successfully had their normal transcriptional function “rescued”. There are 16772 instances, and each instance has 5409 attributes. Potential challenges for this dataset include known missing values, as well as the large number of attributes per instance. All of the attributes were extracted from biophysical simulations of mutant proteins, and the class labels (target) were determined experimentally, through *in vivo* assays.
 
 The attributes are described as follows:
 + Attributes 1-4826 represent 2D electrostatic and surface based features. These are all represented by numerical values.
@@ -20,6 +21,11 @@ The attributes are described as follows:
 
 ## Methods
 ### Data Cleaning
+These are snapshots of the starting data files. Right away, I can spot multiple problems with this data:
+1) Missing values
+2) Missing class labels
+3) Column of "NaN"
+4) High Dimensional dataset
 ![Dirty Data](img/dirty_data.png)
 ![Nametags](img/nametags.png)
 
@@ -31,22 +37,63 @@ Cleaning steps:
 5) Check for duplicates (all values in the rows are equivalent) -> none
 6) Check datatypes -> all “object”, which is good because less memory-intensive for computations than using floats + pandas stores strings as “object” datatype
 
+This is the final clean, concatenated result. 
 ![Cleaned Data](img/clean_data.png)
 
 ### Exploratory Data Analysis
 
+The majority of mutants in the dataset have only two mutations, and single mutations or three or more mutations are less common. Four or more mutations was the least common of the group.
 ![Number Mutations](img/num_mutations.png)
 
-![PCA](img/pca.png)
+#### Dimensionality Reduction
+One of the biggest obstacles in this project was the high dimensionality of this dataset. Since there are so many features, I cannot use the same strategies of exploratory data analysis that I would use for datasets with fewer features. There is also the *Curse of Dimensionality*, which teaches that more features can convolute and dilute a model's predictions. So now, my main goal is to find out which features are important for discerning between the two classes and which features do not give much helpful information and can be dropped from the feature set.
+**orange = active (non-cancerous), blue = inactive (cancerous)**
+**My goal is to predict the *active, or orange* samples.**
 
+![PCA](img/pca.png)
+From the PCA projection, a few key observations are made: 
+1) a large feature overlap between the two classes
+2) highly imbalanced classes, as there are few *active* samples compared to *inactive* samples
+3) long, separated clusters of "active" samples, which tells me that there are most likely key common features within each cluster that may help with predictions
+
+To try to further separate the two classes, I used t-SNE (t-distributed Stochastic Nearest Embedding). This is an especially useful technique for high dimensional datasets, developed by Laurens van der Maaten and Geoffrey Hinton in 2008. t-SNE plots capture non-linear relationships and is thus a good choice for this data since the two classes are not linearly separable (see the PCA plot above). 
 ![t-SNE](img/tsne.png)
+There is still a large feature overlap, but the t-SNE achieved better separation of the two classes. The t-SNE also revealed some small, tight clusters of *active* p53 mutants - an interesting observation to dig further into!
 
 ### Preprocessing Steps
+The main goals in this stage of the project were:
+1) make all the data numerical, including the class labels
+2) scale the data
+3) feature selection
+
 #### Scaling the Data
+
+The scale of the numerical features in this dataset greatly matters when preparing the data for a machine learning model. Since each feature represents a different type of measurement of the p53 proteins, there is a good chance that not all of the features are scaled in the same way. Some of the measurements could have different units or could even have been obtained through different methods!
+
+Before I start removing features, I want to explore the standard deviations of these features. What are the ranges of the standard deviations? What is the smallest standard deviation? What is the largest standard deviation? What is the mean and median standard deviation? Are any of the standard deviations equal to 0? Doing this will give me a better idea of which features have relatively low variance and won't be useful.
+
 ![not_scaled](img/min_max_stds.png)
+
+One indicator of the uneven scaling of the numerical features is the large right skew that was seen when I visualized the distribution of the unscaled data's standard deviations. Many of the features had very low standard deviations (75% had standard deviations less than 0.89), and a few had much larger standard deviations, with the max standard deviation being 77.
+By scaling the numerical data, I can reduce this skew and more accurately determine which features give little to no information. 
+
+I used Scikit-learn's *MaxAbsScaler*, which scales each feature by its maximum absolute value. This estimator scales and translates each feature individually such that the maximal absolute value of each feature in the training set will be 1.0. It does not shift/center the data, and thus does not destroy any sparsity. Here is the distribution of the resulting scaled features' standard deviations.
+
 ![scaled](img/scaled_features.png)
 
+There is a huge improvement in the range of the standard deviations, and while there is still a slight right skew, the outliers are not as great as they were before scaling the data.
+
 #### Feature Selection
+
+Due to the highly dimensional nature of this dataset (5408 features!!) and the resulting complexity, knowing where to start is difficult. More common visualization techniques for lower dimensional data are too computationally expensive and time-consuming to be useful at this point.
+
+Some first steps to reduce dimensionality would be:
+
+1) Search for features with no variance and drop these features, since they do not provide any information for our classification problem.
+2) Look for multicollinearity in the features! Identify features that are highly linearly correlated with each other or features that have a high PMI (point-wise mutual information) score. These features are redundant, as having many features with a high PMI score or high linear correlation do not provide additional information.
+
+Since I am not sure yet whether the features have linear or nonlinear (geometric?) relationships, I will be using both the linear correlation and the PMI scores (mutual information captures non-linear relationships) for the feature elimination/selection and comparing the results of both methods.
+
 ![after_drop](img/after_drop.png)
 
 ![upper 2d](img/upper_2d.png)
