@@ -1,9 +1,10 @@
-p53_Rescue_Mutants
+Predicting Cancerous p53 Mutants
 ==============================
 
 
 ## Purpose
-this project aims to identify mutants that could lead to functional rescue and regions of the p53 core domain that could be altered to rescue function by modeling mutant p53 transcriptional activity
+
+This project aims to identify mutants that could lead to functional rescue and regions of the p53 core domain that could be altered to rescue function by modeling mutant p53 transcriptional activity.
 
 ## Data
 The raw datasets for this project are from the . . . Group and are hosted online at the UC Irvine Machine Learning Repository.
@@ -35,7 +36,6 @@ The raw datasets for this project are from the . . . Group and are hosted online
 
 ==============================
 Project Organization
-------------
 
     ├── LICENSE
     ├── Makefile           <- Makefile with commands like `make data` or `make train`
