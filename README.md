@@ -26,6 +26,7 @@ These are snapshots of the starting data files. Right away, I can spot multiple 
 2) Missing class labels
 3) Column of "NaN"
 4) High Dimensional dataset
+
 ![Dirty Data](img/dirty_data.png)
 ![Nametags](img/nametags.png)
 
@@ -38,11 +39,13 @@ Cleaning steps:
 6) Check datatypes -> all “object”, which is good because less memory-intensive for computations than using floats + pandas stores strings as “object” datatype
 
 This is the final clean, concatenated result. 
+
 ![Cleaned Data](img/clean_data.png)
 
 ### Exploratory Data Analysis
 
 The majority of mutants in the dataset have only two mutations, and single mutations or three or more mutations are less common. Four or more mutations was the least common of the group.
+
 ![Number Mutations](img/num_mutations.png)
 
 #### Dimensionality Reduction
@@ -51,13 +54,16 @@ One of the biggest obstacles in this project was the high dimensionality of this
 **My goal is to predict the *active, or orange* samples.**
 
 ![PCA](img/pca.png)
+
 From the PCA projection, a few key observations are made: 
 1) a large feature overlap between the two classes
 2) highly imbalanced classes, as there are few *active* samples compared to *inactive* samples
 3) long, separated clusters of "active" samples, which tells me that there are most likely key common features within each cluster that may help with predictions
 
 To try to further separate the two classes, I used t-SNE (t-distributed Stochastic Nearest Embedding). This is an especially useful technique for high dimensional datasets, developed by Laurens van der Maaten and Geoffrey Hinton in 2008. t-SNE plots capture non-linear relationships and is thus a good choice for this data since the two classes are not linearly separable (see the PCA plot above). 
+
 ![t-SNE](img/tsne.png)
+
 There is still a large feature overlap, but the t-SNE achieved better separation of the two classes. The t-SNE also revealed some small, tight clusters of *active* p53 mutants - an interesting observation to dig further into!
 
 ### Preprocessing Steps
@@ -105,6 +111,7 @@ I made all the elements in the correlation matrix positive, because I only want 
 This method returns 200 of the 2D features that are highly correlated.
 
 ![final](img/final.png)
+
 Out of the 3D features, 13 of these had high linear correlations (above 0.90) and will be dropped. In total, I had 343 remaining features. 
 
 #### Dealing with Class Imbalance
